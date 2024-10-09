@@ -28,7 +28,7 @@ locals {
 
 resource "aws_cloudwatch_metric_alarm" "sqs_oldest_msg_alarm" {
   count = var.create ? 1 : 0
-  alarm_name          = "${aws_sqs_queue.this.name}-sqs_oldest_msg_alarm"
+  alarm_name          = "${aws_sqs_queue.this[count.index].name}-sqs_oldest_msg_alarm"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "10"
   metric_name         = "ApproximateAgeOfOldestMessage"
@@ -42,13 +42,13 @@ resource "aws_cloudwatch_metric_alarm" "sqs_oldest_msg_alarm" {
   alarm_actions = [local.alarm_sns_topic_arn]
 
   dimensions = {
-    QueueName = aws_sqs_queue.this.name
+    QueueName = aws_sqs_queue.this[count.index].name
   }
 }
 
 resource "aws_cloudwatch_metric_alarm" "dlq_oldest_msg_alarm" {
   count = var.create && var.create_dlq && var.create_msg_count_alarm ? 1 : 0
-  alarm_name          = "${aws_sqs_queue.dlq.name}-dlq-sqs_msg_count_alarm"
+  alarm_name          = "${aws_sqs_queue.dlq[count.index].name}-dlq-sqs_msg_count_alarm"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "5"
   metric_name         = "ApproximateNumberOfMessagesVisible"
@@ -62,13 +62,13 @@ resource "aws_cloudwatch_metric_alarm" "dlq_oldest_msg_alarm" {
   alarm_actions = [local.alarm_sns_topic_arn]
 
   dimensions = {
-    QueueName = aws_sqs_queue.dlq.name
+    QueueName = aws_sqs_queue.dlq[count.index].name
   }
 }
 
 resource "aws_cloudwatch_metric_alarm" "sqs_count_msg_alarm" {
   count = var.create && var.create_msg_count_alarm ? 1 : 0
-  alarm_name          = "${aws_sqs_queue.dlq.name}-dlq-sqs_msg_count_alarm"
+  alarm_name          = "${aws_sqs_queue.dlq[count.index].name}-dlq-sqs_msg_count_alarm"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "5"
   metric_name         = "ApproximateNumberOfMessagesVisible"
@@ -82,14 +82,14 @@ resource "aws_cloudwatch_metric_alarm" "sqs_count_msg_alarm" {
   alarm_actions = [local.alarm_sns_topic_arn]
 
   dimensions = {
-    QueueName = aws_sqs_queue.dlq.name
+    QueueName = aws_sqs_queue.dlq[count.index].name
   }
 }
 
 
 resource "aws_cloudwatch_metric_alarm" "dlq_count_msg_alarm" {
   count = var.create && var.create_dlq ? 1 : 0
-  alarm_name          = "${aws_sqs_queue.dlq.name}-dlq-sqs_oldest_msg_alarm"
+  alarm_name          = "${aws_sqs_queue.dlq[count.index].name}-dlq-sqs_oldest_msg_alarm"
   comparison_operator = "GreaterThanOrEqualToThreshold"
   evaluation_periods  = "5"
   metric_name         = "ApproximateAgeOfOldestMessage"
@@ -103,6 +103,6 @@ resource "aws_cloudwatch_metric_alarm" "dlq_count_msg_alarm" {
   alarm_actions = [local.alarm_sns_topic_arn]
 
   dimensions = {
-    QueueName = aws_sqs_queue.dlq.name
+    QueueName = aws_sqs_queue.dlq[count.index].name
   }
 }
